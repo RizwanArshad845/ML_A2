@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Result{% endblock %}
+{% block content %}
+{% set is_ai = rec.label == 'AI-generated' %}
+<section class="card">
+  <p class="muted small">Result #{{ rec.id }} · {{ rec.filename }} · {{ rec.width }}×{{ rec.height }} px</p>
+  <div class="verdict {{ 'ai' if is_ai else 'real' }}">
+    <span class="verdict-label">{{ 'Likely AI-generated' if is_ai else 'Likely real' }}</span>
+    <span class="verdict-conf">{{ '%.1f' % (rec.confidence * 100) }}% confidence</span>
+  </div>
+
+  <div class="meter" role="img" aria-label="Probability AI-generated {{ '%.0f' % (rec.prob_ai * 100) }} percent">
+    <div class="meter-fill" style="width: {{ '%.1f' % (rec.prob_ai * 100) }}%"></div>
+    <div class="meter-threshold" style="left: {{ '%.1f' % (rec.threshold * 100) }}%" title="decision threshold"></div>
+  </div>
+  <div class="meter-scale small muted"><span>Real</span><span>P(AI) = {{ '%.3f' % rec.prob_ai }} · threshold {{ '%.2f' % rec.threshold }}</span><span>AI</span></div>
+
+  <dl class="details">
+    <dt>Model</dt><dd>{{ rec.model_name }} ({{ rec.model_version }})</dd>
+    <dt>Analysed</dt><dd>{{ rec.created_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</dd>
+    <dt>Time taken</dt><dd>{{ '%.0f' % rec.latency_ms }} ms</dd>
+  </dl>
+
+  <div class="caveat">
+    <strong>Please read:</strong> this is a statistical guess from a model trained on about 1,000 web images, not proof.
+    It can be wrong, especially for edited or compressed photos, paintings and digital art, screenshots,
+    and images from AI generators it has never seen. Do not use this result alone to accuse anyone of faking an image.
+  </div>
+
+  <div class="actions">
+    <a class="btn" href="{{ url_for('main.index') }}">Analyze another image</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.history') }}">View history</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Analyze an image{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Is this image AI-generated?</h1>
+  <p class="muted">Upload a photo or artwork. VisionGuard estimates whether it was made by a generative AI model or is a real image.</p>
+
+  <form class="upload" action="{{ url_for('main.predict') }}" method="post" enctype="multipart/form-data">
+    <label class="dropzone" for="image">
+      <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" required>
+      <img id="preview" alt="" hidden>
+      <span id="hint">Click to choose an image</span>
+      <span class="muted small">Accepted: {{ allowed }} · max {{ '%g' % max_mb }} MB</span>
+    </label>
+    <button type="submit" class="btn">Analyze</button>
+  </form>
+  <p class="muted small">Your image is analysed in memory and never saved on the server. Only the file name and the result are logged.</p>
+</section>
+
+<script>
+  // Local preview only: the image is shown from the browser, nothing is uploaded until submit.
+  const input = document.getElementById('image');
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+    const img = document.getElementById('preview');
+    img.src = URL.createObjectURL(file);
+    img.hidden = false;
+    document.getElementById('hint').textContent = file.name;
+  });
+</script>
+{% endblock %}

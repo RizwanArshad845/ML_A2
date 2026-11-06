@@ -1,0 +1,14 @@
+tensorflow
+keras-tuner
+scikit-learn
+pandas
+pillow
+matplotlib
+kaggle
+dvc
+flask
+sqlalchemy
+waitress
+python-dotenv
+pytest
+tensorboard

@@ -1,0 +1,23 @@
+# Secrets: DagsHub token, passwords. Never commit.
+.env
+
+# Python / tooling
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Generated locally, not source code
+logs/
+tuner_runs/
+instance/
+artifacts/
+models/
+
+# Local MLflow store (runs are tracked on DagsHub)
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Task 1.4 toy DVC project is its own separate git repo
+dvc-toy/

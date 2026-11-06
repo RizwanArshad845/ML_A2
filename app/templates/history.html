@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<section class="card wide">
+  <h1>Prediction history</h1>
+  <p class="muted">Every analysed image is logged: what was decided, when, by which model and how confidently.
+    Showing the latest {{ records|length }} of {{ total }} records.</p>
+
+  {% if records %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Time (UTC)</th><th>File</th><th>Verdict</th>
+          <th class="num">Confidence</th><th class="num">P(AI)</th><th class="num">Threshold</th>
+          <th>Model</th><th class="num">Latency</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td><a href="{{ url_for('main.result', record_id=r.id) }}">{{ r.id }}</a></td>
+          <td class="nowrap">{{ r.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td class="filename" title="{{ r.filename }}">{{ r.filename }}</td>
+          <td><span class="pill {{ 'ai' if r.label == 'AI-generated' else 'real' }}">{{ r.label }}</span></td>
+          <td class="num">{{ '%.1f' % (r.confidence * 100) }}%</td>
+          <td class="num">{{ '%.3f' % r.prob_ai }}</td>
+          <td class="num">{{ '%.2f' % r.threshold }}</td>
+          <td>{{ r.model_name }} <span class="muted">{{ r.model_version }}</span></td>
+          <td class="num">{{ '%.0f' % r.latency_ms }} ms</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">No predictions yet. <a href="{{ url_for('main.index') }}">Analyze your first image.</a></p>
+  {% endif %}
+</section>
+{% endblock %}
