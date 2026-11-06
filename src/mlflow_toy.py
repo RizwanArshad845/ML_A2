@@ -57,6 +57,8 @@ def main() -> None:
                   metrics=["accuracy"])
 
     mlflow.set_experiment("toy-fashion-mnist")
+    # MLflow 3 UI otherwise opens experiments in its GenAI view, which hides the runs table.
+    mlflow.set_experiment_tag("mlflow.experimentKind", "custom_model_development")
     with mlflow.start_run(run_name=f"toy_lr{args.lr}") as run:
         mlflow.log_params({"lr": args.lr, "units": args.units, "epochs": args.epochs,
                            "batch_size": 32, "train_samples": len(x)})
