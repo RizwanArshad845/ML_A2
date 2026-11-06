@@ -134,6 +134,50 @@ def error_grid(pred_df: pd.DataFrame, path, n=10):
     return wrong
 
 
+def evaluate_model(model, img_size, resize_mode, outdir, title, criterion, max_fpr) -> dict:
+    """Pick the threshold on validation, then score the test set at that threshold.
+    Writes threshold.json, test_metrics.json, the confusion matrix and the ROC curve to outdir.
+    Shared by this script and train.py (which logs the results to MLflow)."""
+    common = dict(img_size=img_size, resize_mode=resize_mode, batch_size=32, training=False)
+
+    # 1. validation set: choose the threshold
+    val_ds, val_df = build_dataset(SPLIT_DIR / "val.csv", **common)
+    p_val = model.predict(val_ds, verbose=0).ravel()
+    y_val = val_df["label"].values
+    table = threshold_table(y_val, p_val)
+    table.to_csv(outdir / "val_threshold_table.csv", index=False)
+    thr = choose_threshold(table, criterion, max_fpr)
+    print(f"Threshold chosen on validation ({criterion}): {thr:.2f}")
+    (outdir / "threshold.json").write_text(json.dumps(
+        {"threshold": thr, "criterion": criterion, "max_fpr": max_fpr}, indent=2))
+    val_row = table[table["threshold"] == thr].iloc[0]
+    # Named "...at_thr" so they do not clash with Keras' per-epoch val_* metrics in MLflow.
+    val = {"val_roc_auc": float(roc_auc_score(y_val, p_val)), "threshold": thr,
+           "val_precision_at_thr": float(val_row["precision"]),
+           "val_recall_at_thr": float(val_row["recall"]),
+           "val_f1_at_thr": float(val_row["f1"]),
+           "val_fpr_at_thr": float(val_row["false_positive_rate"])}
+
+    # 2. test set: scored at the threshold fixed above
+    test_ds, test_df = build_dataset(SPLIT_DIR / "test.csv", **common)
+    p_test = model.predict(test_ds, verbose=0).ravel()
+    y_test = test_df["label"].values
+    m = metrics_at(y_test, p_test, thr)
+    m_default = metrics_at(y_test, p_test, 0.5)
+    (outdir / "test_metrics.json").write_text(json.dumps({"chosen": m, "at_0.5": m_default}, indent=2))
+
+    plot_confusion(y_test, p_test, thr, f"{title} (threshold {thr:.2f})",
+                   outdir / "confusion_matrix.png")
+    plot_roc(y_test, p_test, thr, f"ROC: {title}", outdir / "roc_curve.png")
+
+    preds = test_df.copy()
+    preds["prob_ai"] = p_test
+    preds["pred"] = (p_test >= thr).astype(int)
+    preds["correct"] = preds["pred"] == preds["label"]
+    preds.to_csv(outdir / "test_predictions.csv", index=False)
+    return {"threshold": thr, "val": val, "test": m, "predictions": preds}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run_name", required=True)
@@ -150,38 +194,10 @@ def main() -> None:
 
     cfg = json.loads((run / "config.json").read_text())
     model = keras.models.load_model(run / "model.keras")
-    common = dict(img_size=cfg["img_size"], resize_mode=cfg["resize_mode"], batch_size=32,
-                  training=False)
-
-    # 1. validation set: choose the threshold
-    val_ds, val_df = build_dataset(SPLIT_DIR / "val.csv", **common)
-    p_val = model.predict(val_ds, verbose=0).ravel()
-    y_val = val_df["label"].values
-    table = threshold_table(y_val, p_val)
-    table.to_csv(run / "val_threshold_table.csv", index=False)
-    thr = choose_threshold(table, args.criterion, args.max_fpr)
-    print(f"Threshold chosen on validation ({args.criterion}): {thr:.2f}")
-    (run / "threshold.json").write_text(json.dumps(
-        {"threshold": thr, "criterion": args.criterion, "max_fpr": args.max_fpr}, indent=2))
-
-    # 2. test set: used once
-    test_ds, test_df = build_dataset(SPLIT_DIR / "test.csv", **common)
-    p_test = model.predict(test_ds, verbose=0).ravel()
-    y_test = test_df["label"].values
-    m = metrics_at(y_test, p_test, thr)
-    m_default = metrics_at(y_test, p_test, 0.5)
-    metrics_file.write_text(json.dumps({"chosen": m, "at_0.5": m_default}, indent=2))
-
-    plot_confusion(y_test, p_test, thr, f"{args.run_name} (threshold {thr:.2f})",
-                   run / "confusion_matrix.png")
-    plot_roc(y_test, p_test, thr, f"ROC: {args.run_name}", run / "roc_curve.png")
-
-    preds = test_df.copy()
-    preds["prob_ai"] = p_test
-    preds["pred"] = (p_test >= thr).astype(int)
-    preds["correct"] = preds["pred"] == preds["label"]
-    preds.to_csv(run / "test_predictions.csv", index=False)
-    error_grid(preds, run / "misclassified_top10.png")
+    result = evaluate_model(model, cfg["img_size"], cfg["resize_mode"], run, args.run_name,
+                            args.criterion, args.max_fpr)
+    m = result["test"]
+    error_grid(result["predictions"], run / "misclassified_top10.png")
 
     REPORT_DIR.mkdir(exist_ok=True)
     row = {"run_name": args.run_name, **{k: round(v, 4) if isinstance(v, float) else v
