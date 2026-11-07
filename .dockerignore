@@ -1,0 +1,33 @@
+# Keep the build context small and secrets out of the image (Task 6.2).
+# Only requirements-app.txt, app/ and src/preprocess.py are needed.
+
+# secrets
+.env
+.dvc/config.local
+
+# environments, caches, VCS
+.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.dvc/
+
+# data, models and experiment outputs (the model is mounted at run time)
+data/
+artifacts/
+models/
+mlruns/
+mlartifacts/
+mlflow.db
+tuner_runs/
+logs/
+instance/
+reports/
+dvc-toy/
+
+# not needed at run time
+tests/
+*.md
+Dockerfile
+docker-compose.yml

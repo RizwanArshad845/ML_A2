@@ -1,0 +1,43 @@
+# VisionGuard stack (Task 6.3): `docker compose up -d --build`
+# Passwords are read from the untracked .env file next to this file (see .env.example).
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-visionguard}
+      POSTGRES_DB: ${POSTGRES_DB:-visionguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # named volume: history survives container rebuilds
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # No `ports:` on purpose. The database is reachable only by the web service
+    # on Compose's internal network (as host name `db`), never from outside.
+    restart: unless-stopped
+
+  web:
+    build: .
+    image: visionguard-web
+    depends_on:
+      db:
+        condition: service_healthy   # start only after Postgres accepts connections
+    environment:
+      # `db` is the service name: Compose's internal DNS resolves it to the database.
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-visionguard}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-visionguard}
+      MODEL_PATH: /models/champion/model.keras
+      MODEL_NAME: visionguard
+      MODEL_VERSION: ${MODEL_VERSION:-champion}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
+    volumes:
+      # The champion model is mounted read-only, not built into the image (see report 6.3).
+      - ./models/champion:/models/champion:ro
+    ports:
+      - "5000:5000"   # only the web app is published
+    restart: unless-stopped
+
+volumes:
+  pgdata:
