@@ -1,0 +1,3 @@
+# never upload local secrets or caches
+.env*
+__pycache__/

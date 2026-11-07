@@ -16,6 +16,7 @@ COPY = {
     "deploy/vercel/index.py": "index.py",
     "deploy/vercel/vercel.json": "vercel.json",
     "deploy/vercel/requirements.txt": "requirements.txt",
+    "deploy/vercel/.vercelignore": ".vercelignore",
     "api/__init__.py": "api/__init__.py",
     "api/lite.py": "api/lite.py",
     "app/__init__.py": "app/__init__.py",
