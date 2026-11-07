@@ -1,0 +1,9 @@
+# What CI needs to lint and test (Task 6.6). The app tests replace the Keras model
+# with a fake predictor, so TensorFlow is not installed here; the Docker build job
+# installs it inside the image instead.
+flask==3.1.3
+sqlalchemy==2.1.8
+waitress==3.0.2
+pillow==13.0.0
+pytest==9.2.0
+ruff==0.17.4

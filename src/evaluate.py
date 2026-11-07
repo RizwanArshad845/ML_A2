@@ -21,8 +21,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PIL import Image
-from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score, precision_score,
-                             recall_score, roc_auc_score, roc_curve)
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
 from tensorflow import keras
 
 from config import ARTIFACT_DIR, DATA_ROOT, REPORT_DIR, SPLIT_DIR

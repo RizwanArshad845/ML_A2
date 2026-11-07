@@ -36,8 +36,8 @@ def main() -> None:
                "--run_name", name, "--tracking", mode, "--change", change]
         with open(ROOT / "logs" / f"{name}.log", "w", encoding="utf-8") as log:
             code = subprocess.run(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT).returncode
-        summary = [l for l in (ROOT / "logs" / f"{name}.log").read_text(encoding="utf-8").splitlines()
-                   if l.startswith("MLflow run")]
+        lines = (ROOT / "logs" / f"{name}.log").read_text(encoding="utf-8").splitlines()
+        summary = [line for line in lines if line.startswith("MLflow run")]
         print(f"{name}: exit {code} {summary[-1] if summary else ''}", flush=True)
 
 

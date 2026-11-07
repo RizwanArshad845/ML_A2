@@ -21,3 +21,6 @@ mlflow.db
 
 # Task 1.4 toy DVC project is its own separate git repo
 dvc-toy/
+
+# Task 6.6 toy CI project is its own separate git repo
+ci-toy/

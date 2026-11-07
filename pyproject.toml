@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/W: style errors and warnings, F: real bugs (undefined names, unused imports), I: import order
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.isort]
+# src/ scripts import each other as top-level modules (python src/train.py)
+known-first-party = ["app", "src", "config", "data", "models", "preprocess", "tracking", "evaluate"]

@@ -15,7 +15,6 @@ import pandas as pd
 from PIL import Image, UnidentifiedImageError
 
 
-
 def sha256_of(path: Path, chunk: int = 1 << 20) -> str:
     """Hash the raw bytes of the file. Same bytes means same hash."""
     h = hashlib.sha256()

@@ -11,7 +11,6 @@ The search sees only the training and validation lists. The test set is never us
 import argparse
 
 import keras_tuner as kt
-import numpy as np
 import pandas as pd
 from tensorflow import keras
 

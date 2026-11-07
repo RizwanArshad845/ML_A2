@@ -24,8 +24,15 @@ from tensorflow import keras
 
 from config import ARTIFACT_DIR, SEED, SPLIT_DIR
 from data import build_dataset
-from models import (build_baseline, build_transfer, compile_model, freeze_base,
-                    get_base, layer_table, trainable_report, unfreeze_last_block)
+from models import (
+    build_baseline,
+    build_transfer,
+    compile_model,
+    get_base,
+    layer_table,
+    trainable_report,
+    unfreeze_last_block,
+)
 
 
 def set_seeds(seed: int, deterministic: bool) -> None:
