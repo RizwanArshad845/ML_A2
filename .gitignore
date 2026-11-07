@@ -27,3 +27,6 @@ ci-toy/
 
 # Task 4.2 sample bad uploads
 test_uploads/
+
+# Task 7 staging folder for the Hugging Face Space upload
+build/

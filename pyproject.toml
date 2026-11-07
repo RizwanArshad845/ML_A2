@@ -8,4 +8,4 @@ select = ["E", "F", "W", "I"]
 
 [tool.ruff.lint.isort]
 # src/ scripts import each other as top-level modules (python src/train.py)
-known-first-party = ["app", "src", "config", "data", "models", "preprocess", "tracking", "evaluate"]
+known-first-party = ["app", "api", "src", "config", "data", "models", "preprocess", "tracking", "evaluate"]
