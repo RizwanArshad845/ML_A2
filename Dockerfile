@@ -1,7 +1,10 @@
 # VisionGuard web app (Task 6.2)
 # Slim Debian base: has glibc (needed by TensorFlow wheels) but no compilers or docs.
 # Python 3.13 matches the environment the model was trained in.
-FROM python:3.13-slim
+# BASE is a build argument only so Task 6.4 can compare sizes:
+#   docker build --build-arg BASE=python:3.13 -t visionguard-web:fullbase .
+ARG BASE=python:3.13-slim
+FROM ${BASE}
 
 # No .pyc files, unbuffered logs (so `docker logs` shows lines immediately), no pip cache.
 ENV PYTHONDONTWRITEBYTECODE=1 \
