@@ -23,7 +23,11 @@ def create_app(settings: Settings | None = None, predictor=None) -> Flask:
     db = Database(settings.database_url)
     db.create_tables()
 
-    if predictor is None:
+    if predictor is None and settings.model_api_url:
+        # Task 8: send images to the cloud model API (Task 7) instead of loading TensorFlow.
+        from app.remote import RemotePredictor
+        predictor = RemotePredictor(settings.model_api_url, settings.model_api_key)
+    elif predictor is None:
         from app.inference import Predictor
         predictor = Predictor(settings.model_path, settings.threshold,
                               settings.model_name, settings.model_version)

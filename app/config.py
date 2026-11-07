@@ -25,6 +25,9 @@ class Settings:
     model_version: str  # "" = use model_info.json next to the model
     host: str
     port: int
+    # Task 8: when set, predictions come from the cloud model API instead of a local model
+    model_api_url: str = ""
+    model_api_key: str = ""
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -38,4 +41,6 @@ class Settings:
             model_version=os.getenv("MODEL_VERSION", ""),
             host=os.getenv("HOST", "127.0.0.1"),
             port=int(os.getenv("PORT", "5000")),
+            model_api_url=os.getenv("MODEL_API_URL", "").strip(),
+            model_api_key=os.getenv("MODEL_API_KEY", "").strip(),
         )

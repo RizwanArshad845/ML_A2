@@ -3,6 +3,7 @@ import logging
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
 
+from app.remote import RemoteModelError
 from app.validation import ALLOWED_EXTENSIONS, UploadError, validate_upload
 
 log = logging.getLogger(__name__)
@@ -37,6 +38,9 @@ def predict():
         return render_template("error.html", title="Image could not be read",
                                message="The model could not decode this image.",
                                status=422), 422
+    except RemoteModelError as e:
+        return render_template("error.html", title="Model service unavailable",
+                               message=str(e), status=503), 503
 
     rec = _db().add(
         filename=upload.filename, file_sha256=upload.sha256, file_size=upload.size,
@@ -73,6 +77,7 @@ def health():
     body = {
         "status": "ok" if db_ok else "degraded",
         "model_loaded": p is not None,
+        "model_backend": getattr(p, "backend", "local"),
         "model_name": p.model_name,
         "model_version": p.model_version,
         "threshold": p.threshold,

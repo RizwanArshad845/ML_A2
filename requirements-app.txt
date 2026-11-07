@@ -8,3 +8,4 @@ sqlalchemy==2.1.8
 waitress==3.0.2
 pillow==13.0.0
 psycopg2-binary==2.9.13
+requests==2.34.2  # Task 8: calls the cloud model API
