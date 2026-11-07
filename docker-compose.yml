@@ -30,7 +30,7 @@ services:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-visionguard}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-visionguard}
       MODEL_PATH: /models/champion/model.keras
       MODEL_NAME: visionguard
-      MODEL_VERSION: ${MODEL_VERSION:-champion}
+      MODEL_VERSION: ${MODEL_VERSION:-}   # empty = read model_info.json (registry version)
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
     volumes:
       # The champion model is mounted read-only, not built into the image (see report 6.3).
