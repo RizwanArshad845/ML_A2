@@ -31,9 +31,17 @@ def create_api(predictor=None, api_key: str | None = None, max_upload_mb: float 
 
     if predictor is None:
         from app.config import Settings
-        from app.inference import Predictor
         s = Settings.from_env()
-        predictor = Predictor(s.model_path, s.threshold, s.model_name, s.model_version)
+        if os.getenv("MODEL_BACKEND", "keras") == "tflite":
+            # Vercel: TensorFlow does not fit, so run model.tflite with the small LiteRT runtime.
+            from pathlib import Path
+
+            from api.lite import LitePredictor
+            predictor = LitePredictor(Path(s.model_path).parent, s.threshold, s.model_name,
+                                      s.model_version)
+        else:
+            from app.inference import Predictor
+            predictor = Predictor(s.model_path, s.threshold, s.model_name, s.model_version)
 
     api = Flask(__name__)
     api.config["MAX_CONTENT_LENGTH"] = int(max_upload_mb * 1024 * 1024)

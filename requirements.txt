@@ -13,4 +13,3 @@ python-dotenv
 pytest
 tensorboard
 mlflow
-huggingface_hub
