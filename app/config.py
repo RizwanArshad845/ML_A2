@@ -22,7 +22,7 @@ class Settings:
     database_url: str
     max_upload_mb: float
     model_name: str
-    model_version: str
+    model_version: str  # "" = use model_info.json next to the model
     host: str
     port: int
 
@@ -35,7 +35,7 @@ class Settings:
             database_url=os.getenv("DATABASE_URL", f"sqlite:///{default_db}"),
             max_upload_mb=float(os.getenv("MAX_UPLOAD_MB", "5")),
             model_name=os.getenv("MODEL_NAME", "visionguard"),
-            model_version=os.getenv("MODEL_VERSION", "local"),
+            model_version=os.getenv("MODEL_VERSION", ""),
             host=os.getenv("HOST", "127.0.0.1"),
             port=int(os.getenv("PORT", "5000")),
         )

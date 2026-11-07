@@ -24,3 +24,6 @@ dvc-toy/
 
 # Task 6.6 toy CI project is its own separate git repo
 ci-toy/
+
+# Task 4.2 sample bad uploads
+test_uploads/

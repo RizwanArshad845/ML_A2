@@ -36,7 +36,7 @@ class Prediction:
 
 class Predictor:
     def __init__(self, model_path, threshold=None, model_name="visionguard",
-                 model_version="local"):
+                 model_version=""):
         model_path = Path(model_path)
         if not model_path.is_file():
             # Fail at start-up with a clear message instead of on the first request.
@@ -61,7 +61,10 @@ class Predictor:
             threshold = json.loads(thr_file.read_text())["threshold"] if thr_file.exists() else 0.5
         self.threshold = float(threshold)
         self.model_name = model_name
-        self.model_version = model_version
+        # model_info.json is written by src/load_champion.py --export (registry version).
+        info_file = model_path.with_name("model_info.json")
+        info = json.loads(info_file.read_text()) if info_file.exists() else {}
+        self.model_version = model_version or str(info.get("version", "local"))
 
         start = time.perf_counter()
         self.model = keras.models.load_model(model_path)
